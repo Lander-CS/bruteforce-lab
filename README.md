@@ -1,4 +1,4 @@
-# bruteforce-lab DIO.ME BOOTCAMPRIACHUELO
+# bruteforce-lab BOOTCAMP DIO.ME x RIACHUELO
 
 ## 🎯 Objetivo
 
