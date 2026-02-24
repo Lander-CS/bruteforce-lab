@@ -322,4 +322,4 @@ Nenhuma medida isolada é suficiente.
 ---
 
 ###  Agradecimentos
-Agradecimento especial à :contentReference[oaicite:0]{index=0} e à :contentReference[oaicite:1]{index=1} pela oportunidade de participar do bootcamp e fortalecer a base prática em segurança ofensiva e defensiva.
+Agradecimento especial à Dio.me e à Riachuelo pela oportunidade de participar do bootcamp e fortalecer a base prática em segurança ofensiva e defensiva.
