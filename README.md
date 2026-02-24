@@ -113,6 +113,39 @@ Validação: ```[80][http-post-form] host: 192.168.56.101   login: admin   passw
 Evidência adicional:
 Login manual realizado com sucesso no DVWA utilizando as credenciais encontradas.
 A ausência da mensagem “Login failed” confirmou autenticação válida.
+## ⚠️ Limitação Encontrada — Medusa em Formulários Web ⚠️
+
+Durante os testes no ambiente de laboratório (Kali Linux → Metasploitable 2 → DVWA), foi identificada uma limitação prática no uso do **Medusa** para ataques de força bruta contra formulários de login HTTP.
+
+###  Problema Observado
+O Medusa não conseguiu autenticar corretamente no formulário web do DVWA, mesmo com credenciais válidas presentes nas wordlists.
+
+###  Causa Técnica
+O Medusa é otimizado para serviços de autenticação padronizados (ex.: FTP, SSH, SMB, Telnet), nos quais o protocolo e o fluxo de login são bem definidos.  
+Formulários web, por outro lado, exigem controle detalhado de:
+
+- parâmetros HTTP específicos (POST fields)
+- tratamento de sessões e cookies
+- identificação precisa do padrão de erro/sucesso na resposta HTML
+- lógica de aplicação (tokens, redirecionamentos, CSRF, etc.)
+
+Esses requisitos tornam o suporte nativo do Medusa limitado para autenticação via formulário web.
+
+### 🛠️Solução Adotada
+Para o cenário de autenticação no DVWA, foi utilizada a ferramenta **Hydra**, que possui módulo dedicado para `http-form-post`, permitindo:
+
+- definição explícita dos campos do formulário
+- identificação do padrão de falha na resposta
+- automação consistente de tentativas de login
+
+###  Conclusão Técnica
+O teste evidenciou que a escolha da ferramenta deve considerar o tipo de serviço alvo.  
+Enquanto o Medusa é eficaz para serviços de rede tradicionais, ferramentas com suporte específico a formulários HTTP são mais adequadas para aplicações web.
+
+###  Lição Prática
+Selecionar a ferramenta correta faz parte do processo de auditoria de segurança.  
+Limitações operacionais também são resultados válidos e devem ser documentadas como parte do aprendizado e da análise técnica.
+
 
 ## Password Spraying SMB
 
