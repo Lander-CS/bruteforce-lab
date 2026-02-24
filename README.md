@@ -64,3 +64,52 @@ Resultado:
 ```
 Validação:
 ``` 2026-02-24 08:59:28 ACCOUNT FOUND: [ftp] Host: 192.168.56.101 User: msfadmin Password: msfadmin [SUCCESS] ```
+
+## 🌐 Ataque Web (DVWA)
+Comando: 
+```
+hydra -L users.txt -P pass.txt 192.168.56.101 http-form-post "/dvwa/login.php:username=^USER^&password=^PASS^&Login=Login:Login failed"
+```
+Descrição:
+`-L users.txt` - Indica o arquivo contendo a lista de usuários a serem testados.
+`-P pass.txt` - Define o arquivo contendo a lista de senhas a serem testadas.
+`192.168.56.101` - Endereço ip do alvo onde a aplicação web está hospedada.
+`http-form-post` - Define o tipo de serviço e o método de autenticação a ser atacado.
+` "/dvwa/login.php:username=^USER^&password=^PASS^&Login=Login:Login failed"` - Esta parte é o núcleo do ataque e possui três componentes separados por dois-pontos `(:)`:
+`/dvwa/login.php` - Indica o endpoint que recebe as credenciais enviadas pelo formulário.
+`username=^USER^&password=^PASS^&Login=Login` - Representa os dados enviados ao servidor durante a tentativa de login.
+Significado de cada elemento:
+`username=^USER^`
+O Hydra substitui automaticamente `^USER^` pelo usuário atual da wordlist.
+
+`password=^PASS^`
+O Hydra substitui automaticamente `^PASS^` pela senha atual da wordlist.
+
+`Login=Login`
+Campo fixo enviado pelo botão de login do formulário.(F12 > NETWORK > FAÇA UM LOGIN TESTE COM QUALQUER CREDENCIAL> ACESSE O METODO 'POST' QUE FOI CRIADO> CLIQUE EM REQUEST> BANG! CREDENCIAIS SOLICITADAS PELO FOMULÁRIO.)
+`Login failed`
+Texto retornado pela aplicação quando as credenciais são inválidas.
+O Hydra utiliza essa informação para determinar o resultado da tentativa:
+Se o texto aparecer → login inválido
+Se o texto NÃO aparecer → login bem-sucedido
+Essa verificação é essencial para evitar falsos positivos.
+
+
+Resultado: 
+
+```
+Hydra v9.6 (c) 2023 by van Hauser/THC & David Maciejak
+
+Hydra starting at 2026-02-24 09:24:11
+[DATA] max 16 tasks per 1 server, overall 16 tasks, 24 login tries (l:4/p:6), ~2 tries per task
+[DATA] attacking http-post-form://192.168.56.101:80/dvwa/login.php:username=^USER^&password=^PASS^&Login=Login:Login failed
+[80][http-post-form] host: 192.168.56.101   login: admin   password: password
+1 of 1 target successfully completed, 1 valid password found
+Hydra finished at 2026-02-24 09:24:15
+
+```
+
+Validação: ```[80][http-post-form] host: 192.168.56.101   login: admin   password: password ```
+Evidência adicional:
+Login manual realizado com sucesso no DVWA utilizando as credenciais encontradas.
+A ausência da mensagem “Login failed” confirmou autenticação válida.
