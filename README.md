@@ -22,10 +22,10 @@ Nmap scan report for 192.168.56.101
 Host is up (0.0044s latency).
 PORT |  STATE SERVICE | VERSION
 21/tcp | open | ftp | vsftpd 2.3.4
-22/tcp | open | ssh         OpenSSH 4.7p1 Debian 8ubuntu1 (protocol 2.0)
-80/tcp | open | http        Apache httpd 2.2.8 ((Ubuntu) DAV/2)
-139/tcp | open | netbios-ssn Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
-445/tcp | open | netbios-ssn Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
+22/tcp | open | ssh | OpenSSH 4.7p1 Debian 8ubuntu1 (protocol 2.0)
+80/tcp | open | http |  Apache httpd 2.2.8 ((Ubuntu) DAV/2)
+139/tcp | open | netbios-ssn | Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
+445/tcp | open | netbios-ssn | Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
 MAC Address: ********** (Oracle VirtualBox virtual NIC)
 Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
 
